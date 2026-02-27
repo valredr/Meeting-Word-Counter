@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Word Counter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .counter-section {
+            display: none;
+        }
+
+        .counter-section.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            margin-bottom: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-add {
+            background: #667eea;
+            color: white;
+            padding: 12px 18px;
+            flex: 0 0 auto;
+        }
+
+        .btn-add:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .add-word-section {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .add-word-input-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .add-word-input-group input {
+            flex: 1;
+            min-width: 150px;
+            margin-bottom: 0;
+        }
+
+        .counters-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .counter-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .counter-text {
+            font-size: 0.75em;
+            opacity: 0.85;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .counter-word {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 12px;
+            word-break: break-word;
+        }
+
+        .counter-number {
+            font-size: 2.8em;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .counter-btn {
+            background: white;
+            color: #667eea;
+            padding: 8px 12px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+        }
+
+        .counter-btn:active {
+            background: #e0e0e0;
+        }
+
+        .counter-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .counter-remove {
+            background: #ff6b6b;
+            color: white;
+            padding: 6px 10px;
+            font-size: 0.8em;
+            width: 100%;
+        }
+
+        .counter-remove:hover {
+            background: #ff5252;
+        }
+
+        .end-session-btn {
+            background: #ff6b6b;
+            color: white;
+            padding: 14px 20px;
+            width: 100%;
+            font-size: 1em;
+            margin-top: 25px;
+        }
+
+        .end-session-btn:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .scoreboard {
+            display: none;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .scoreboard.active {
+            display: block;
+        }
+
+        .scoreboard h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .score-word {
+            font-weight: 600;
+            font-size: 1em;
+            color: #333;
+            text-align: left;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .score-count {
+            background: #667eea;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .setup-section {
+            display: block;
+        }
+
+        .setup-section.hidden {
+            display: none;
+        }
+
+        .btn-reset {
+            background: #2196F3;
+            color: white;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-reset:hover {
+            background: #0b7dda;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 25px;
+            font-size: 1em;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+
+            .counters-container {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 10px;
+            }
+
+            .counter-card {
+                padding: 12px;
+            }
+
+            .counter-number {
+                font-size: 2.2em;
+            }
+
+            .counter-word {
+                font-size: 1.1em;
+            }
+
+            .counter-text {
+                font-size: 0.7em;
+            }
+
+            .counter-btn {
+                padding: 8px 10px;
+                font-size: 0.85em;
+            }
+
+            .add-word-input-group {
+                flex-direction: column;
+            }
+
+            .add-word-input-group input {
+                min-width: auto;
+            }
+
+            .btn-add {
+                width: 100%;
+            }
+
+            .score-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .score-count {
+                align-self: flex-end;
+            }
+
+            input[type="text"] {
+                font-size: 16px;
+            }
+
+            button {
+                font-size: 0.95em;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.3em;
+            }
+
+            .counters-container {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+
+            .counter-number {
+                font-size: 2em;
+            }
+
+            .counter-word {
+                font-size: 0.95em;
+            }
+
+            .counter-text {
+                font-size: 0.65em;
+            }
+
+            button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .end-session-btn {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Meeting Counter</h1>
+
+        <!-- Setup Section -->
+        <div class="setup-section" id="setupSection">
+            <div class="input-group">
+                <label for="wordInput">Enter the first word you want to track:</label>
+                <input 
+                    type="text" 
+                    id="wordInput" 
+                    placeholder="e.g., 'Actually', 'Like', 'You know'"
+                    onkeypress="if(event.key === 'Enter') startSession()"
+                >
+            </div>
+            <button class="btn-start" onclick="startSession()">Start Session</button>
+        </div>
+
+        <!-- Counter Section -->
+        <div class="counter-section" id="counterSection">
+            <!-- Add More Words Section -->
+            <div class="add-word-section">
+                <label>Add more words during the session:</label>
+                <div class="add-word-input-group">
+                    <input 
+                        type="text" 
+                        id="newWordInput" 
+                        placeholder="Type a new word to track"
+                        onkeypress="if(event.key === 'Enter') addNewWord()"
+                    >
+                    <button class="btn-add" onclick="addNewWord()">Add Word</button>
+                </div>
+            </div>
+
+            <!-- Counters Container -->
+            <div class="counters-container" id="countersContainer">
+                <!-- Counter cards will be generated here -->
+            </div>
+
+            <!-- End Session Button -->
+            <button class="end-session-btn" onclick="endSession()">🏁 End Session</button>
+        </div>
+
+        <!-- Scoreboard Section -->
+        <div class="scoreboard" id="scoreboard">
+            <h2>📈 Final Scoreboard</h2>
+            <div id="scoreboardContent"></div>
+            <button class="btn-reset" onclick="resetSession()">↺ Start New Session</button>
+        </div>
+    </div>
+
+    <script>
+        let wordsToTrack = [];
+        let counts = {};
+
+        function startSession() {
+            const input = document.getElementById('wordInput').value.trim();
+            
+            if (input === '') {
+                alert('Please enter a word to track');
+                return;
+            }
+
+            wordsToTrack = [input.toLowerCase()];
+            counts = {};
+            counts[input.toLowerCase()] = 0;
+
+            // Hide setup, show counter
+            document.getElementById('setupSection').classList.add('hidden');
+            document.getElementById('counterSection').classList.add('active');
+            document.getElementById('scoreboard').classList.remove('active');
+            
+            // Generate counter cards
+            generateCounterCards();
+            document.getElementById('newWordInput').focus();
+        }
+
+        function addNewWord() {
+            const input = document.getElementById('newWordInput').value.trim();
+            
+            if (input === '') {
+                alert('Please enter a word');
+                return;
+            }
+
+            const wordLower = input.toLowerCase();
+
+            if (wordsToTrack.includes(wordLower)) {
+                alert('This word is already being tracked!');
+                return;
+            }
+
+            wordsToTrack.push(wordLower);
+            counts[wordLower] = 0;
+            document.getElementById('newWordInput').value = '';
+            generateCounterCards();
+            document.getElementById('newWordInput').focus();
+        }
+
+        function generateCounterCards() {
+            const container = document.getElementById('countersContainer');
+            container.innerHTML = '';
+
+            wordsToTrack.forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'counter-card';
+                card.innerHTML = `
+                    <div class="counter-text">Number of times he said</div>
+                    <div class="counter-word">${word}</div>
+                    <div class="counter-number" id="count-${word}">${counts[word]}</div>
+                    <button class="counter-btn" onclick="incrementCount('${word}')">➕ Count</button>
+                    <button class="counter-remove" onclick="removeWord('${word}')">Remove</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function incrementCount(word) {
+            counts[word]++;
+            document.getElementById(`count-${word}`).textContent = counts[word];
+        }
+
+        function removeWord(word) {
+            if (confirm(`Remove '${word}' from tracking?`)) {
+                wordsToTrack = wordsToTrack.filter(w => w !== word);
+                delete counts[word];
+                generateCounterCards();
+            }
+        }
+
+        function endSession() {
+            // Hide counter, show scoreboard
+            document.getElementById('counterSection').classList.remove('active');
+            document.getElementById('scoreboard').classList.add('active');
+            
+            // Display scoreboard
+            displayScoreboard();
+        }
+
+        function displayScoreboard() {
+            const scoreboardContent = document.getElementById('scoreboardContent');
+            
+            const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
+            
+            if (totalCount === 0) {
+                scoreboardContent.innerHTML = '<div class="empty-message">No counts recorded</div>';
+                return;
+            }
+
+            let html = '';
+            const sortedWords = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            
+            sortedWords.forEach((item, index) => {
+                const word = item[0];
+                const count = item[1];
+                html += `
+                    <div class="score-item">
+                        <div class="score-word">${index + 1}. Number of times he said <strong>${word}</strong></div>
+                        <div class="score-count">${count}</div>
+                    </div>
+                `;
+            });
+
+            scoreboardContent.innerHTML = html;
+        }
+
+        function resetSession() {
+            wordsToTrack = [];
+            counts = {};
+
+            document.getElementById('setupSection').classList.remove('hidden');
+            document.getElementById('counterSection').classList.remove('active');
+            document.getElementById('scoreboard').classList.remove('active');
+            document.getElementById('wordInput').value = '';
+            document.getElementById('wordInput').focus();
+        }
+
+        // Focus on input on page load
+        window.onload = function() {
+            document.getElementById('wordInput').focus();
+        };
+    </script>
+</body>
+</html>
